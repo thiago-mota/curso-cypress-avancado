@@ -130,7 +130,7 @@ describe('Hacker Stories', () => {
     })
 
     context('Last searches', () => {
-      it.only('searches via the last searched term', () => {
+      it('searches via the last searched term', () => {
         cy.get('#search')
           .type(`${newTerm}{enter}`)
 
@@ -150,14 +150,18 @@ describe('Hacker Stories', () => {
           .should('be.visible')
       })
 
-      it('shows a max of 5 buttons for the last searched terms', () => {
+      it.only('shows a max of 5 buttons for the last searched terms', () => {
+        cy.intercept({
+          method: 'GET',
+          pathname: '**/search**'
+        }).as('getRandomStories')
+
         Cypress._.times(6, () => {
           cy.get('#search')
             .clear()
-            .type(`${faker.random.word()}{enter}`)
+            .type(`${faker.word.words(1)}{enter}`)
         })
-
-        cy.assertLoadingIsShownAndHidden()
+        cy.wait('@getRandomStories')
 
         cy.get('.last-searches button')
           .should('have.length', 5)
