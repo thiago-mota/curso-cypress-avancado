@@ -88,11 +88,20 @@ describe('Hacker Stories', () => {
         .clear()
     })
 
-    it('types and hits ENTER', () => {
+    it.only('types and hits ENTER', () => {
+      cy.intercept({
+        method: 'GET',
+        pathname: '**/search',
+        query: {
+          query: `${ newTerm }`,
+          page: '0',
+        },
+      }).as('searchStories');
+
       cy.get('#search')
         .type(`${newTerm}{enter}`)
 
-      cy.assertLoadingIsShownAndHidden()
+      cy.wait('@searchStories');
 
       cy.get('.item').should('have.length', 20)
       cy.get('.item')
